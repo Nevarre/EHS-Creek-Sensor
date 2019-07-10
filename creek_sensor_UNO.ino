@@ -139,7 +139,7 @@ void setup(){
         Serial.begin(9600);//sets baud rate = 9600 for serial communication
         myGsm.println("AT+CMGF=1");//select SMS mode, 0 means PDU mode, 1 means text, always set to 1
         delay(1000);
-        }
+    }
         
     delay(500);
     
@@ -179,7 +179,9 @@ void setup(){
     delay(2000);
     printSerialData();
     
-    myGsm.println("AT+CSTT=\"Ultra\",\"\",\"\"");//setting the APN,2nd parameter empty works for all networks, Ultra is the VPN name setted up for SIM card, it is reconfigurable
+    //setting the APN,2nd parameter empty works for all networks
+    //Ultra is the VPN name setted up for SIM card, it is reconfigurable
+    myGsm.println("AT+CSTT=\"Ultra\",\"\",\"\"");
     delay(5000);
     printSerialData();
     
@@ -201,15 +203,16 @@ void setup(){
     delay(2000);
     printSerialData();
     
-    String data="GET https://api.thingspeak.com/update?api_key=___receive_key___" + String(temp)+"&field2=" +String(pH);//Send data to ThingSpeak.com, api_key is obtained from ThingSpeak.com, it is must to send data in string format, e.g. String(temp)
+    //Send data to ThingSpeak.com, api_key is obtained from ThingSpeak.com,
+    //it is must to send data in string format, e.g. String(temp)
+    String data="GET https://api.thingspeak.com/update?api_key=___receive_key___" + String(temp)+"&field2=" +String(pH);
     myGsm.println(data);
     delay(10000);
     printSerialData();
     
     myGsm.println((char)26);//This signifies end of sending data
     delay(10000);
-    printSerialData();
-    
+    printSerialData(); 
     
     myGsm.println("AT+CIPSHUT");// Deactivate GPRS PDP context
     delay(3000);
@@ -244,7 +247,6 @@ void loop(){
   
   delay(500);*/
 }
-
 
 void sendTempSMS() {
 <<<<<<< HEAD
