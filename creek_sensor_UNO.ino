@@ -136,7 +136,7 @@ void loop(){
 
 void sendTempSMS() {
     Serial.print("Temperature limit crossed");//message shown in serial monitor of Arduino
-    myGsm.println("AT+CMGS=\"+15108120269\"");//send SMS, you can change the number, adding country code is a must
+    myGsm.println("AT+CMGS=\"+14159145902\"");//send SMS, you can change the number, adding country code is a must
     delay(500);
     
     myGsm.print("Temperature limit crossed ");//message to be sent
