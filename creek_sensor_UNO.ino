@@ -8,36 +8,86 @@ float pH= 5;//pH
 int temptrig;//trigger when temperature crosses limit value
 int pHtrig;//trigger when pH crosses limit value
 
+// measurement parameters
+char temp_str[12] = "temperature";
+char pH_str[3] = "pH";
+
+char sms_num[25] = "AT+CMGS=\"+14159145902\""; // phone number used for sms, must include country code
+
+void(* resetFunc) (void) = 0; // resets the Arduino
+
 void setup(){
+    Serial.begin(9600); //Begin serial communication with Arduino and Arduino IDE
+    Serial.println("Initializing..."); 
+    delay(1000);
+
+    updateSerial();
+
     if (temp>20){ //limit value condition for temperature
         temptrig=1;// temperature trigger set
     }
-    if (temptrig==1){
-        myGsm.begin(9600);
-        Serial.begin(9600);//sets baud rate = 9600 for serial communication
-        myGsm.println("AT+CMGF=1");//select SMS mode, 0 means PDU mode, 1 means text, always set to 1
-        delay(1000);
+
+    if (temptrig==1 ){
+        sendSMS(temp_str);//Call SMS function when temperature limit is crossed
     }
+
     if (pH<5){ //limit value condition for pH
         pHtrig=1;
     }
-    if (pHtrig==1){ // pH trigger set
-        myGsm.begin(9600);
-        Serial.begin(9600);//sets baud rate = 9600 for serial communication
-        myGsm.println("AT+CMGF=1");//select SMS mode, 0 means PDU mode, 1 means text, always set to 1
-        delay(1000);
+    if (pHtrig==1 ){
+        sendSMS(pH_str);//Call SMS function when pH limit is crossed
     }
-        
-    delay(500);
-    
-    myGsm.begin(9600);  
-    Serial.begin(9600);  
-    delay(500);
-    
-    myGsm.println("AT");//AT commands, AT means Attention
-    delay(1000);
-    printSerialData();
-    
+
+    // thinkspeak_setup();
+}
+
+void loop(){
+// Add some sort of time trigger
+//resetFunc(); //resetting Arduino
+}
+
+void updateSerial(){
+  delay(500);
+  while (Serial.available()) 
+    myGsm.write(Serial.read());//Forward what Serial received to Software Serial Port
+  while(myGsm.available()) 
+    Serial.write(myGsm.read());//Forward what Software Serial received to Serial Port
+}
+
+void setup_SMS(){
+    myGsm.begin(9600); //Begin communication with Arduino and SIM900
+    updateSerial();
+
+    myGsm.println("AT"); //AT commands for communication with SIM900
+    updateSerial();
+
+    myGsm.println("AT+CPIN?");//Enter PIN, remove all PINs from SIM card e.g. SIM PIN/PUK
+    updateSerial();
+
+    myGsm.println("AT+CMGF=1");//select SMS mode, 0 means PDU mode, 1 means text, always set to 1
+    updateSerial();
+
+    myGsm.println(sms_num);//send SMS, you can change the number, adding country code is a must
+    updateSerial();
+}
+
+void sendSMS(char parameter[]){
+    Serial.print(parameter);
+    Serial.println(" limit crossed");//message shown in serial monitor of Arduino
+    updateSerial();
+
+    setup_SMS();
+
+    myGsm.print(parameter);
+    myGsm.println(" limit crossed ");//message to be sent
+    updateSerial();
+
+    myGsm.write( 0x1a ); // ctrl+Z character, necessary command after sending an SMS
+    updateSerial();
+}
+
+void thinkspeak_setup(){
+
     myGsm.println("AT+CPIN?");//Enter PIN, remove all PINs from SIM card e.g. SIM PIN/PUK
     delay(1000);
     printSerialData();
@@ -104,58 +154,10 @@ void setup(){
     myGsm.println("AT+CIPSHUT");// Deactivate GPRS PDP context
     delay(3000);
     printSerialData();
-    
-    if (temptrig==1 ) {
-        sendTempSMS();//Call SMS function when temperature limit is crossed
-    }
-
-    delay(500);
-    
-    if (pHtrig==1 ) {
-        sendpHSMS();//Call SMS function when pH limit is crossed
-    }
-}
-
-void loop(){
-    while(myGsm.available()) {
-        Serial.write(myGsm.read());
-    }
-  
-  /*if (temptrig==1 ) {
-    sendTempSMS();//Call SMS function when temperature limit is crossed
-  }
-  
-  delay(500);
-
-  if (pHtrig==1 ) {
-    sendpHSMS();//Call SMS function when pH limit is crossed
-  }
-  
-  delay(500);*/
-}
-
-void sendTempSMS() {
-    Serial.print("Temperature limit crossed");//message shown in serial monitor of Arduino
-    myGsm.println("AT+CMGS=\"+14159145902\"");//send SMS, you can change the number, adding country code is a must
-    delay(500);
-    
-    myGsm.print("Temperature limit crossed ");//message to be sent
-    myGsm.write( 0x1a ); // ctrl+Z character, necessary command after sending an SMS
-    delay(500);
-}
-
-void sendpHSMS() {
-    Serial.print("pH limit crossed");//message shown in serial monitor of Arduino
-    myGsm.println("AT+CMGS=\"+15108120269\"");//send SMS, you can change the number, adding country code is a must
-    delay(500);
-    
-    myGsm.print("pH limit crossed ");//message to be sent
-    myGsm.write( 0x1a ); // ctrl+Z character, necessary command after sending an SMS
-    delay(500);
-}
+}    
 
 void printSerialData(){
-    while(myGsm.available()!=0){
+    while(myGsm.available()!=0)
         Serial.write(myGsm.read());
-    }
 }
+
