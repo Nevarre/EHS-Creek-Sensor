@@ -98,7 +98,7 @@ myGsm.println("AT+CIPSTATUS");// Query current connection status
  delay(2000);
  printSerialData();
 
-String data="GET https://api.thingspeak.com/update?api_key=___receive_key___" + String(temp)+"&field2=" +String(pH);//Send data to ThingSpeak.com, api_key is obtained from ThingSpeak.com, it is must to send data in string format, e.g. String(temp)
+String data="GET https://api.thingspeak.com/update?api_key=______=0" + String(temp)+"&field2=" +String(pH);//Send data to ThingSpeak.com, api_key is obtained from ThingSpeak.com, it is must to send data in string format, e.g. String(temp)
  myGsm.println(data);
  delay(10000);
  printSerialData();
