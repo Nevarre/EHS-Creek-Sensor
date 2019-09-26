@@ -64,8 +64,8 @@ ProcessorStats mcuBoard(mcuBoardVersion);
 // You can use as many instances of NeoSWSerial as you want.
 // Not all AVR boards are supported by NeoSWSerial.
 #include <NeoSWSerial.h>  // for the stream communication
-const int8_t neoSSerial1Rx = A11;     // data in pin
-const int8_t neoSSerial1Tx = A10;     // data out pin
+const int8_t neoSSerial1Rx = 11;     // data in pin
+const int8_t neoSSerial1Tx = 10;     // data out pin
 NeoSWSerial neoSSerial1(neoSSerial1Rx, neoSSerial1Tx);
 // To use NeoSWSerial in this library, we define a function to receive data
 // This is just a short-cut for later
