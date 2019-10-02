@@ -59,20 +59,34 @@ ProcessorStats mcuBoard(mcuBoardVersion);
 // as possible.  In some cases (ie, modbus communication) many sensors can share
 // the same serial port.
 
+// External serial connection is needed for Arduino to commincate with gsm
+// Here, AltSoftSerial is used because it far more efficient than the standard
+// Arduino softwareserial library.
+// Mayfly specification with AltSoftSerial is pin 6 for receiving (Rx) and
+// pin 5 for transmitting (Tx).
+
+// AltSoftSerial by Paul Stoffregen (https://github.com/PaulStoffregen/AltSoftSerial)
+// is the most accurate software serial port for AVR boards.
+// AltSoftSerial can only be used on one set of pins on each board so only one
+// AltSoftSerial port can be used.
+// Not all AVR boards are supported by AltSoftSerial.
+#include <AltSoftSerial.h>
+AltSoftSerial altSoftSerial;
+
 // NeoSWSerial (https://github.com/SRGDamia1/NeoSWSerial) is the best software
 // serial that can be used on any pin supporting interrupts.
 // You can use as many instances of NeoSWSerial as you want.
 // Not all AVR boards are supported by NeoSWSerial.
-#include <NeoSWSerial.h>  // for the stream communication
-const int8_t neoSSerial1Rx = 11;     // data in pin
-const int8_t neoSSerial1Tx = 10;     // data out pin
-NeoSWSerial neoSSerial1(neoSSerial1Rx, neoSSerial1Tx);
+//#include <NeoSWSerial.h>  // for the stream communication
+//const int8_t neoSSerial1Rx = D6;     // data in pin
+//const int8_t neoSSerial1Tx = D8;     // data out pin
+//NeoSWSerial neoSSerial1(neoSSerial1Rx, neoSSerial1Tx);
 // To use NeoSWSerial in this library, we define a function to receive data
 // This is just a short-cut for later
-void neoSSerial1ISR()
-{
-    NeoSWSerial::rxISR(*portInputRegister(digitalPinToPort(neoSSerial1Rx)));
-}
+//void neoSSerial1ISR()
+//{
+//    NeoSWSerial::rxISR(*portInputRegister(digitalPinToPort(neoSSerial1Rx)));
+//}
 
 
 // ==========================================================================
@@ -82,7 +96,9 @@ void neoSSerial1ISR()
 // Create a reference to the serial port for the modem
 // Extra hardware and software serial ports are created in the "Settings for Additional Serial Ports" section
 //HardwareSerial &modemSerial = Serial1;  // Use hardware serial if possible
-NeoSWSerial &modemSerial = neoSSerial1;  // For software serial if needed
+//NeoSWSerial &modemSerial = neoSSerial1;  // For software serial if needed
+
+AltSoftSerial &modemSerial = altSoftSerial;  // For software serial if needed
 
 
 // Modem Pins - Describe the physical pin connection of your modem to your board
@@ -132,7 +148,7 @@ MaximDS3231 ds3231(1);
 #include <sensors/MaximDS18.h>
 
 const int8_t OneWirePower = sensorPowerPin; // Pin to switch power on and off (-1 if unconnected)
-const int8_t OneWireBus = A4;  // Pin attached to the OneWire Bus (-1 if unconnected) (D24 = A0)
+const int8_t OneWireBus = A0;  // Pin attached to the OneWire Bus (-1 if unconnected) (D24 = A0)
 
 // Create a Maxim DS18 sensor object (use this form for a single sensor on bus with an unknown address)
 // Use this constructor to save yourself the trouble of finding the address
