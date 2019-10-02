@@ -20,7 +20,8 @@ const char *sketchName = "sensors_mayfly.ino";
 // Logger ID, also becomes the prefix for the name of the data file on SD card
 const char *LoggerID = "proto_temp";
 // How frequently (in minutes) to log data
-const uint8_t loggingInterval = 5;
+//desired interval is 5, using 1 for debugging purposes
+const uint8_t loggingInterval = 1;
 // The number of readings to average
 const uint8_t measurementsToAverage = 10;
 // Your logger's timezone.
