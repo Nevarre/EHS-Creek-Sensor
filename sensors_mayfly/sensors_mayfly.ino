@@ -43,10 +43,11 @@ const int8_t wakePin = A7;        // MCU interrupt/alarm pin to wake from sleep
 // In a SAMD system where you are using the built-in rtc, set wakePin to 1
 const int8_t sdCardPwrPin = -1;    // MCU SD card power pin (-1 if not applicable)
 const int8_t sdCardSSPin = 12;     // MCU SD card chip select/slave select pin (must be given!)
-const int8_t sensorPowerPin = 22;  // MCU pin controlling main sensor power (-1 if not applicable)
+const int8_t sensorPowerPin = -1;  // MCU pin controlling main sensor power (-1 if not applicable)
 
 // Create the main processor chip "sensor" - for general metadata
-const char *mcuBoardVersion = "v0.5b";
+// look at the back of your board for the version information
+const char *mcuBoardVersion = "v0.5";
 ProcessorStats mcuBoard(mcuBoardVersion);
 
 
@@ -64,7 +65,11 @@ ProcessorStats mcuBoard(mcuBoardVersion);
 // Here, AltSoftSerial is used because it far more efficient than the standard
 // Arduino softwareserial library.
 // Mayfly specification with AltSoftSerial is pin 6 for receiving (Rx) and
-// pin 5 for transmitting (Tx).
+// pin 5 for transmitting (Tx). Pin 4 is a reserved pin for AltSoftSerial. Do not
+// use this pin when using AltSoftSerial.
+
+// Unfortunately, the Rx and Tx pins are on different Grove plugs on both the Mayfly
+// making AltSoftSerial somewhat inconvenient to use.
 
 // AltSoftSerial by Paul Stoffregen (https://github.com/PaulStoffregen/AltSoftSerial)
 // is the most accurate software serial port for AVR boards.
@@ -171,6 +176,7 @@ MaximDS18 ds18(OneWirePower, OneWireBus, measurementsToAverage);
 // at the same time putting them into an array
 // NOTE:  Forms one and two can be mixed
 Variable *variableList[] = {
+    new ProcessorStats_Battery(&mcuBoard),  // battery voltage. Range is 0 to 5 V
     new  MaximDS18_Temp(&ds18)  // Temperature in °C, optional UUID and variable code argument
 };
 
