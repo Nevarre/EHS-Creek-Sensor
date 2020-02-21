@@ -1,6 +1,9 @@
 # EHS-Creek-Sensor
 
-
+Current setup process
+-> Create new project in your PlatformIO Home
+-> Clone repository
+-> Change `platform.ini` settings
 
 Current `platform.ini` settings.
 
