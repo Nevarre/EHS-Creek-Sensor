@@ -8,7 +8,10 @@ Hardware Platform: EnviroDIY Mayfly Arduino Datalogger
 // ==========================================================================
 #include <Arduino.h>  // The base Arduino library
 #include <EnableInterrupt.h>  // for external and pin change interrupts
-
+#include <SdFat.h>
+#include <SdFatConfig.h>
+// File system object.
+SdFat sd;  // reassigns all sd functions to SdFat functions
 
 // ==========================================================================
 //    Data Logger Settings
@@ -154,7 +157,7 @@ MaximDS3231 ds3231(1);
 #include <sensors/MaximDS18.h>
 
 const int8_t OneWirePower = sensorPowerPin; // Pin to switch power on and off (-1 if unconnected)
-const int8_t OneWireBus = A0;  // Pin attached to the OneWire Bus (-1 if unconnected) (D24 = A0)
+const int8_t OneWireBus = 2;  // Pin attached to the OneWire Bus (-1 if unconnected) (D24 = A0)
 
 // Create a Maxim DS18 sensor object (use this form for a single sensor on bus with an unknown address)
 // Use this constructor to save yourself the trouble of finding the address
@@ -167,6 +170,26 @@ MaximDS18 ds18(OneWirePower, OneWireBus, measurementsToAverage);
 // Range is -55°C to +125°C (-67°F to +257°F)
 
 
+const int8_t SDI12Power = sensorPowerPin;
+const int8_t SDI12Data = 7;
+
+#include <sensors/DecagonCTD.h>
+// Create the Decagon CTD sensor object
+DecagonCTD ctd(SDI12Power, SDI12Data, measurementsToAverage);
+
+// ==========================================================================
+// Gravity: Analog TDS Sensor/Meter V1.0
+// ==========================================================================
+// #include <EEPROM.h>
+// #include "GravityTDS.h"
+
+// GravityTDS gravityTds;
+
+// const int8_t tds_Bus = 1;
+
+// temporary temperature value. Need to change to live temperature value
+// float temperature = 25,tdsValue = 0;
+
 // ==========================================================================
 //    Creating the Variable Array[s] and Filling with Variable Objects
 // ==========================================================================
@@ -177,8 +200,21 @@ MaximDS18 ds18(OneWirePower, OneWireBus, measurementsToAverage);
 // NOTE:  Forms one and two can be mixed
 Variable *variableList[] = {
     new ProcessorStats_Battery(&mcuBoard),  // battery voltage. Range is 0 to 5 V
-    new  MaximDS18_Temp(&ds18)  // Temperature in °C, optional UUID and variable code argument
-};
+//    new  MaximDS18_Temp(&ds18),  // Temperature in °C, optional UUID and variable code argument
+// Create the Conductivity, Temperature, and Water Depth variables for the CTD and return variable-type pointers to them
+    new DecagonCTD_Cond(&ctd),  // Conductivity in µS/cm
+//  Resolution is 0.001 mS/cm = 1 µS/cm
+//  Accuracy is ±0.01mS/cm or ±10% (whichever is greater)
+//  Range is 0 – 120 mS/cm (bulk)
+    new DecagonCTD_Temp(&ctd),  // Temperature in °C
+//  Resolution is 0.1°C
+//  Accuracy is ±1°C
+//  Range is -11°C to +49°C
+    new DecagonCTD_Depth(&ctd)  // Water depth in mm
+//  Resolution is 2 mm
+//  Accuracy is ±0.05% of full scale
+//  Range is 0 to 5 m or 0 to 10 m, depending on model
+  };
 
 // Count up the number of pointers in the array
 int variableCount = sizeof(variableList) / sizeof(variableList[0]);
@@ -217,13 +253,13 @@ Logger dataLogger(LoggerID, loggingInterval, &varArray);
 // Any custom name or identifier given to the field on ThingSpeak is irrelevant.
 // No more than 8 fields of data can go to any one channel.  Any fields beyond the
 // eighth in the array will be ignored.
-const char *thingSpeakMQTTKey = "***KEY***";  // Your MQTT API Key from Account > MyProfile.
-const char *thingSpeakChannelID = "***KEY***";  // The numeric channel id for your channel
-const char *thingSpeakChannelKey = "***KEY***";  // The Write API Key for your channel
+// const char *thingSpeakMQTTKey = "***KEY***";  // Your MQTT API Key from Account > MyProfile.
+// const char *thingSpeakChannelID = "***KEY***";  // The numeric channel id for your channel
+// const char *thingSpeakChannelKey = "***KEY***";  // The Write API Key for your channel
 
 // Create a data publisher for ThingSpeak
-#include <publishers/ThingSpeakPublisher.h>
-ThingSpeakPublisher TsMqtt(dataLogger, &modem.gsmClient, thingSpeakMQTTKey, thingSpeakChannelID, thingSpeakChannelKey);
+// #include <publishers/ThingSpeakPublisher.h>
+// ThingSpeakPublisher TsMqtt(dataLogger, &modem.gsmClient, thingSpeakMQTTKey, thingSpeakChannelID, thingSpeakChannelKey);
 
 
 // ==========================================================================
@@ -352,6 +388,10 @@ void setup()
             }
         }
     }
+    // Set up tds sensor
+//  gravityTds.setPin(tds_Bus);
+//    gravityTds.setAref(3.7);  //reference voltage on ADC, default 5.0V on Arduino UNO
+//    gravityTds.setAdcRange(1024); //1024 for 10bit ADC;4096 for 12bit ADC
 
     // Set up the sensors, except at lowest battery level
     if (getBatteryVoltage() > 3.4)
@@ -400,6 +440,11 @@ void setup()
 // /*
 void loop()
 {
+
+    //gravityTds.setTemperature(temperature);  // set the temperature and execute temperature compensation
+    //gravityTds.update();  //sample and calculate
+    //tdsValue = gravityTds.getTdsValue();
+
     // Note:  Please change these battery voltages to match your battery
     // At very low battery, just go back to sleep
     if (getBatteryVoltage() < 3.4)
