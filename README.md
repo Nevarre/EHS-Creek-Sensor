@@ -1,6 +1,6 @@
 # EHS-Creek-Sensor
 
-Current setup process
+## Current setup process
 -> Create new project in your PlatformIO Home
 -> Clone repository
 -> Change `platform.ini` settings
@@ -57,3 +57,63 @@ lib_deps =
     https://github.com/greiman/SdFat.git
 
 ```
+
+
+## Common Errors:
+#### SCons.dblite.dblite object
+
+```
+Exception OSError: (2, 'No such file or directory', '/path/to/dir/.pio/build/.sconsign.dblite') in <bound method dblite.__del__ of <SCons.dblite.dblite object at 0x10bfe5610>> ign
+ored
+
+```
+
+Try removing `.pio` folder from the projects folder. 
+-> Go to terminal and `cd /path/to/project/folder `
+-> Since this is a hidden folder use the command `ls -a -ltr` to see the `.pio` folder.
+-> Remove by `rm -rf .pio`. Check it is removed `ls -a -ltr` command again.
+
+Refer to this link for more information: 
+[https://community.platformio.org/t/issues-after-vscode-install/8885](https://community.platformio.org/t/issues-after-vscode-install/8885)
+
+
+#### avrdude: stk500_recv(): programmer is not responding
+```
+Configuring upload protocol...
+AVAILABLE: arduino
+CURRENT: upload_protocol = arduino
+Looking for upload port...
+Auto-detected: /dev/cu.usbserial-A1062BH2
+Uploading .pio/build/mayfly/firmware.hex
+avrdude: stk500_recv(): programmer is not responding
+avrdude: stk500_getsync() attempt 1 of 10: not in sync: resp=0x00
+avrdude: stk500_recv(): programmer is not responding
+avrdude: stk500_getsync() attempt 2 of 10: not in sync: resp=0x00
+avrdude: stk500_recv(): programmer is not responding
+avrdude: stk500_getsync() attempt 3 of 10: not in sync: resp=0x00
+avrdude: stk500_recv(): programmer is not responding
+avrdude: stk500_getsync() attempt 4 of 10: not in sync: resp=0x00
+avrdude: stk500_recv(): programmer is not responding
+avrdude: stk500_getsync() attempt 5 of 10: not in sync: resp=0x00
+avrdude: stk500_recv(): programmer is not responding
+avrdude: stk500_getsync() attempt 6 of 10: not in sync: resp=0x00
+avrdude: stk500_recv(): programmer is not responding
+avrdude: stk500_getsync() attempt 7 of 10: not in sync: resp=0x00
+avrdude: stk500_recv(): programmer is not responding
+avrdude: stk500_getsync() attempt 8 of 10: not in sync: resp=0x00
+avrdude: stk500_recv(): programmer is not responding
+avrdude: stk500_getsync() attempt 9 of 10: not in sync: resp=0x00
+avrdude: stk500_recv(): programmer is not responding
+avrdude: stk500_getsync() attempt 10 of 10: not in sync: resp=0x00
+
+avrdude done.  Thank you.
+```
+
+I have encountered this issue many times. It is generally a port connection issue between the computer and the device. Your usb cable might even be the cause.
+
+From Arduino Stack Exchange: "This is caused by a generic connection error between your computer and the Arduino, and can result from many different specific problems." 
+
+Refer here for more details: [https://arduino.stackexchange.com/questions/17/avrdude-stk500-getsync-not-in-sync-resp-0x00-aka-some-dude-named-avr-won/22541](https://arduino.stackexchange.com/questions/17/avrdude-stk500-getsync-not-in-sync-resp-0x00-aka-some-dude-named-avr-won/22541)
+
+#### Library not found
+Try installing/reinstalling the library from the PlatformIO library search. Otherwise find the original github repository to the library and add the repository link to your `platform.ini` settings under `lib_deps`.
