@@ -82,21 +82,6 @@ ProcessorStats mcuBoard(mcuBoardVersion);
 #include <AltSoftSerial.h>
 AltSoftSerial altSoftSerial;
 
-// NeoSWSerial (https://github.com/SRGDamia1/NeoSWSerial) is the best software
-// serial that can be used on any pin supporting interrupts.
-// You can use as many instances of NeoSWSerial as you want.
-// Not all AVR boards are supported by NeoSWSerial.
-//#include <NeoSWSerial.h>  // for the stream communication
-//const int8_t neoSSerial1Rx = D6;     // data in pin
-//const int8_t neoSSerial1Tx = D8;     // data out pin
-//NeoSWSerial neoSSerial1(neoSSerial1Rx, neoSSerial1Tx);
-// To use NeoSWSerial in this library, we define a function to receive data
-// This is just a short-cut for later
-//void neoSSerial1ISR()
-//{
-//    NeoSWSerial::rxISR(*portInputRegister(digitalPinToPort(neoSSerial1Rx)));
-//}
-
 
 // ==========================================================================
 //    Wifi/Cellular Modem Settings
@@ -104,11 +89,9 @@ AltSoftSerial altSoftSerial;
 
 // Create a reference to the serial port for the modem
 // Extra hardware and software serial ports are created in the "Settings for Additional Serial Ports" section
-//HardwareSerial &modemSerial = Serial1;  // Use hardware serial if possible
-//NeoSWSerial &modemSerial = neoSSerial1;  // For software serial if needed
+
 
 AltSoftSerial &modemSerial = altSoftSerial;  // For software serial if needed
-
 
 // Modem Pins - Describe the physical pin connection of your modem to your board
 const int8_t modemVccPin = -1;      // MCU pin controlling modem power (-1 if not applicable)
@@ -134,34 +117,31 @@ SIMComSIM7000 modem900(&modemSerial,
                         apn);
 // Create an extra reference to the modem by a generic name (not necessary)
 SIMComSIM7000 modem = modem900;
-// // ==========================================================================
 
 
 // ==========================================================================
 //    Maxim DS3231 RTC (Real Time Clock)
 // ==========================================================================
+// The I2C Maxim DS3231 real time clock (RTC) is absolutely required for
+// time-keeping on all AVR boards. This library also makes use of it for
+// its on-board temperature sensor. The DS3231 requires a 3.3V power supply.
+
 #include <sensors/MaximDS3231.h>
 
 // Create a DS3231 sensor object
-MaximDS3231 ds3231(1);
-
-// Create a temperature variable pointer for the DS3231
-// Variable *ds3231Temp = new MaximDS3231_Temp(&ds3231, "12345678-abcd-1234-ef00-1234567890ab");
-
+MaximDS3231 ds3231(measurementsToAverage);
+Variable *ds3231Temp = new MaximDS3231_Temp(&ds3231);
 
 // ==========================================================================
 //     Maxim DS18S20 One Wire Temperature Sensor
 // ==========================================================================
-//#include <sensors/OneWire.h>
-//#include <sensors/DallasTemperature.h>
-#include <sensors/MaximDS18.h>
-
-const int8_t OneWirePower = sensorPowerPin; // Pin to switch power on and off (-1 if unconnected)
-const int8_t OneWireBus = 2;  // Pin attached to the OneWire Bus (-1 if unconnected) (D24 = A0)
+//#include <sensors/MaximDS18.h>
+//const int8_t OneWirePower = sensorPowerPin; // Pin to switch power on and off (-1 if unconnected)
+//const int8_t OneWireBus = 2;  // Pin attached to the OneWire Bus (-1 if unconnected) (D24 = A0)
 
 // Create a Maxim DS18 sensor object (use this form for a single sensor on bus with an unknown address)
 // Use this constructor to save yourself the trouble of finding the address
-MaximDS18 ds18(OneWirePower, OneWireBus, measurementsToAverage);
+//MaximDS18 ds18(OneWirePower, OneWireBus, measurementsToAverage);
 
 // Create the temperature variable object for the DS18 and return a variable-type pointer to it
 //MaximDS18_Temp(&ds18);  // Temperature in °C, optional UUID and variable code argument
@@ -170,25 +150,24 @@ MaximDS18 ds18(OneWirePower, OneWireBus, measurementsToAverage);
 // Range is -55°C to +125°C (-67°F to +257°F)
 
 
+// ==========================================================================
+//     DecagonCTD Meter Hydros 21
+// ==========================================================================
+// The Meter Environmental Hydros 21 communicates with the board using the
+// SDI-12 protocol (and the Arduino SDI-12 library). It requires a 3.5-12V
+// power supply, which can be turned off between measurements. While contrary
+// to the manual, they will run with power as low as 3.3V. On the 5TM with a
+// stereo cable, the power is connected to the tip, data to the ring, and ground
+// to the sleeve. On the bare-wire version, the power is connected to the white cable,
+// data to red, and ground to the unshielded cable.
+
+#include <sensors/DecagonCTD.h>
 const int8_t SDI12Power = sensorPowerPin;
 const int8_t SDI12Data = 7;
 
-#include <sensors/DecagonCTD.h>
 // Create the Decagon CTD sensor object
 DecagonCTD ctd(SDI12Power, SDI12Data, measurementsToAverage);
 
-// ==========================================================================
-// Gravity: Analog TDS Sensor/Meter V1.0
-// ==========================================================================
-// #include <EEPROM.h>
-// #include "GravityTDS.h"
-
-// GravityTDS gravityTds;
-
-// const int8_t tds_Bus = 1;
-
-// temporary temperature value. Need to change to live temperature value
-// float temperature = 25,tdsValue = 0;
 
 // ==========================================================================
 //    Creating the Variable Array[s] and Filling with Variable Objects
@@ -200,8 +179,8 @@ DecagonCTD ctd(SDI12Power, SDI12Data, measurementsToAverage);
 // NOTE:  Forms one and two can be mixed
 Variable *variableList[] = {
     new ProcessorStats_Battery(&mcuBoard),  // battery voltage. Range is 0 to 5 V
-//    new  MaximDS18_Temp(&ds18),  // Temperature in °C, optional UUID and variable code argument
-// Create the Conductivity, Temperature, and Water Depth variables for the CTD and return variable-type pointers to them
+// Create the Conductivity, Temperature, and Water Depth variables for the CTD
+// and return variable-type pointers to them
     new DecagonCTD_Cond(&ctd),  // Conductivity in µS/cm
 //  Resolution is 0.001 mS/cm = 1 µS/cm
 //  Accuracy is ±0.01mS/cm or ±10% (whichever is greater)
@@ -319,14 +298,6 @@ void setup()
         Serial.println(F(
             "WARNING: THIS EXAMPLE WAS WRITTEN FOR A DIFFERENT VERSION OF MODULAR SENSORS!!"));
 
-    // Allow interrupts for software serial
-    #if defined SoftwareSerial_ExtInts_h
-        enableInterrupt(softSerialRx, SoftwareSerial_ExtInts::handle_interrupt, CHANGE);
-    #endif
-    #if defined NeoSWSerial_h
-        enableInterrupt(neoSSerial1Rx, neoSSerial1ISR, CHANGE);
-    #endif
-
     // Start the serial connection with the modem
     modemSerial.begin(modemBaud);
 
@@ -388,10 +359,6 @@ void setup()
             }
         }
     }
-    // Set up tds sensor
-//  gravityTds.setPin(tds_Bus);
-//    gravityTds.setAref(3.7);  //reference voltage on ADC, default 5.0V on Arduino UNO
-//    gravityTds.setAdcRange(1024); //1024 for 10bit ADC;4096 for 12bit ADC
 
     // Set up the sensors, except at lowest battery level
     if (getBatteryVoltage() > 3.4)
@@ -440,11 +407,6 @@ void setup()
 // /*
 void loop()
 {
-
-    //gravityTds.setTemperature(temperature);  // set the temperature and execute temperature compensation
-    //gravityTds.update();  //sample and calculate
-    //tdsValue = gravityTds.getTdsValue();
-
     // Note:  Please change these battery voltages to match your battery
     // At very low battery, just go back to sleep
     if (getBatteryVoltage() < 3.4)
