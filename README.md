@@ -115,5 +115,10 @@ From Arduino Stack Exchange: "This is caused by a generic connection error betwe
 
 Refer here for more details: [https://arduino.stackexchange.com/questions/17/avrdude-stk500-getsync-not-in-sync-resp-0x00-aka-some-dude-named-avr-won/22541](https://arduino.stackexchange.com/questions/17/avrdude-stk500-getsync-not-in-sync-resp-0x00-aka-some-dude-named-avr-won/22541)
 
+Other suggestions:
+- ensure latest FTDI drivers (applicable if COM port not visible)
+- burn bootloader
+- try manually resetting by button press just before uploading
+
 #### Library not found
 Try installing/reinstalling the library from the PlatformIO library search. Otherwise find the original github repository to the library and add the repository link to your `platform.ini` settings under `lib_deps`.
