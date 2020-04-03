@@ -24,7 +24,7 @@ framework = arduino
 ;/media/disk - physical path to media disk/flash drive (mbed enabled boards)
 ;D: - physical path to media disk/flash drive (Windows OS).
 
-upload_port = /dev/cu.usbserial*
+upload_port = /dev/*
 lib_ldf_mode = deep+
 lib_ignore = RTCZero
     ;-DigiXBee
