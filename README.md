@@ -1,6 +1,24 @@
 # EHS-Creek-Sensor
+The UC Berkeley Environment, Healty, and Safety (EHS) team is working on a real-time water quality monitoring system to preserve the wildlife and landscape of Strawberry Creek. 
 
-## Current setup process
+Table of contents
+=================
+<!--ts-->
+   * [About](#about)
+   * [Table of contents](#table-of-contents)
+   * [Installation](#installation)
+   * [Hardware](#hardware)
+      * [Sensors](#sensors)
+   * [Future Work](#future-work)
+   * [Dependency](#dependency)
+<!--te-->
+
+## About
+
+
+## Setup
+
+
 -> Create new project in your PlatformIO Home
 -> Clone repository
 -> Change `platform.ini` settings
@@ -58,6 +76,21 @@ lib_deps =
 
 ```
 
+
+## Hardware
+We are using the [Mayfly Data Logger](https://www.envirodiy.org/mayfly/), a "powerful, user-programmable microprocessor board that is fully compatible with the Arduino IDE software". The data logger requires a MicroSD card and a CR1220 Lithium Coin Cell 3V Battery. Data-logging also requires using a real time clock (RTC). Our [DS3231 RTC](https://www.maximintegrated.com/en/products/analog/real-time-clocks/DS3231.html) is supported by the ModularSensors library.
+
+### Sensors
+Water-quality monitoring requires analysis of various physical and chemical parameters such as temperature, turbidity, and conductivity. We are experimenting with various sensors for their functionality and accessiblity. Many of theses sensors are supported by the ModularSensors library.
+
+- [HYDROS 21](https://www.metergroup.com/environment/products/hydros-21-water-level-monitoring/) (Conductiviy, temperature, depth)
+- [Atlas Scientific K.01](https://www.atlas-scientific.com/probes/conductivity-probe-k-0-1/) (Conductivity)
+- [DS18S20 Digital Thermometer](https://www.maximintegrated.com/en/products/sensors/DS18S20.html) (Temperature)
+- [Gravity: Analog Turbidity Sensor](https://www.dfrobot.com/product-1394.html) (Turbidity)
+
+
+## Furture Work
+We hope to share the live water-quality data of Strawberry Creek with the [Monitor My Watershed](https://monitormywatershed.org/) community.
 
 ## Common Errors:
 #### SCons.dblite.dblite object
