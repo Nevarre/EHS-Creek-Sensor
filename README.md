@@ -15,13 +15,18 @@ Table of contents
 
 ## About
 
+Data monitoring integrates hardware and software, our do-it-yourself water monitoring system uses the [Mayfly Data Logger](https://www.envirodiy.org/mayfly/). For more information on working with this board, we recommend the [Learn EnviroDIY Programming](https://envirodiy.github.io/LearnEnviroDIY/index.html) tutorial. Along with the tutorial, we also recommend using the [ModularSensors](https://github.com/EnviroDIY/ModularSensors) library, a "common interface of functions for use with Arduino-compatible dataloggers". 
 
-## Setup
 
+## Installation
 
--> Create new project in your PlatformIO Home
--> Clone repository
--> Change `platform.ini` settings
+The original Arduino Integrated Development Environment (IDE) has poor library managment. We recommend using the [PlaformIO](https://platformio.org/install) IDE that supports Arduino library managment. Text-editors such as [Visual Studio Code](https://code.visualstudio.com/) or [Atom](https://atom.io/) supports PlatformIO. For more information on how to use and install these platforms, refer to the [EnvrioDIY tutorial](https://envirodiy.github.io/LearnEnviroDIY/04-GetPlatformIO/index.html).
+
+Once you have installed [Git](https://git-scm.com/downloads) and PlatformIO, follow these instructions to setup the current foundations of our code. 
+
+1. Create new project in your PlatformIO Home
+2. Clone repository
+3. Change `platform.ini` settings
 
 Current `platform.ini` settings.
 
