@@ -83,6 +83,9 @@ lib_deps =
 
 
 ## Hardware
+
+![mayfly](https://3qzcxr28gq9vutx8scdn91zq-wpengine.netdna-ssl.com/wp-content/uploads/2016/05/mayfly_topview_labels3.jpg)
+
 We are using the [Mayfly Data Logger](https://www.envirodiy.org/mayfly/), a "powerful, user-programmable microprocessor board that is fully compatible with the Arduino IDE software". The data logger requires a MicroSD card and a CR1220 Lithium Coin Cell 3V Battery. Data-logging also requires using a real time clock (RTC). Our [DS3231 RTC](https://www.maximintegrated.com/en/products/analog/real-time-clocks/DS3231.html) is supported by the ModularSensors library.
 
 ### Sensors
